@@ -11,6 +11,7 @@ import plot_toolbox.ce_plotly as ce_plotly
 from threading import Thread
 from functools import wraps
 import time
+import json
 
 table_composite = {
     "humerus": {
@@ -84,6 +85,19 @@ for raw_file in os.listdir(raw_data_dir):
     filename = f"{ID}_{side}_{bonetype.capitalize()}_composite.csv"
 
     shutil.copy(raw_data_dir + raw_file, composite_data_dir + filename)
+
+def convert(x):
+    if hasattr(x, "tolist"):  # numpy arrays have this
+        return {"$array": x.tolist()}  # Make a tagged object
+    raise TypeError(x)
+
+
+def deconvert(x):
+    if len(x) == 1:  # Might be a tagged object...
+        key, value = next(iter(x.items()))  # Grab the tag and value
+        if key == "$array":  # If the tag is correct,
+            return np.array(value)  # cast back to array
+    return x
 
 
 def thrd(f):
@@ -224,7 +238,7 @@ def get_full_transform(X0, points_scan_compo, bone_mesh):
 
 
 @thrd
-def computation(data_file, bucket, Finished, index, size):
+def computation(data_file, Finished, index, size):
     data_local = {"RT_compo2stl_init": {}, "RT_compo2stl_full": {}}
 
     ID, side, bone, datatype = tuple(data_file[:-4].split("_"))
@@ -300,10 +314,14 @@ def computation(data_file, bucket, Finished, index, size):
         pass
 
     Finished[index + int(size / 2)] = True
-    bucket = data_local
+    data_local
+    json_string = ",\n".join(json.dumps(data_bucket, indent=4, default=convert).split(", "))
+    
+    with open(f"{checkdir('./data_processed/')}/{ID}_{side}_{bone}_data.json", "w") as f:
+        f.write(json_string)
 
 
-data_bucket = {}
+
 t_bucket = []
 size = 2 * len(os.listdir(composite_data_dir))
 Finished = np.zeros(size, dtype=bool)
@@ -312,12 +330,9 @@ t0 = time.time()
 
 for i, data_file in enumerate(sorted(os.listdir(composite_data_dir))):
     ID, side, bone, datatype = tuple(data_file[:-4].split("_"))
-    print(data_file)
-    data_bucket.update({f"{ID}_{side}_{bone}": {}})
     t_bucket.append(
         computation(
             data_file=data_file,
-            bucket=data_bucket[f"{ID}_{side}_{bone}"],
             Finished=Finished,
             index=i,
             size=size,
@@ -338,3 +353,15 @@ for t in t_bucket:
     t.join()
 
 print(f"elapse time= {time.time() - t0} s")
+
+data_bucket = {}
+
+for i, data_file in enumerate(sorted(os.listdir(composite_data_dir))):
+    ID, side, bone, datatype = tuple(data_file[:-4].split("_"))   
+    data_bucket.update({f"{ID}_{side}_{bone}":{}}) 
+    with open(f"{checkdir('./data_processed/')}/{ID}_{side}_{bone}_data.json") as f:
+        data_bucket[f"{ID}_{side}_{bone}"] = json.load(f, object_hook=deconvert)
+
+json_string = ",\n".join(json.dumps(data_bucket, indent=4, default=convert).split(", "))
+with open("./data.json", "w") as f:
+    f.write(json_string)
