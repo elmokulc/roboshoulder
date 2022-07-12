@@ -308,6 +308,8 @@ t_bucket = []
 size = 2 * len(os.listdir(composite_data_dir))
 Finished = np.zeros(size, dtype=bool)
 
+t0 = time.time()
+
 for i, data_file in enumerate(sorted(os.listdir(composite_data_dir))):
     ID, side, bone, datatype = tuple(data_file[:-4].split("_"))
     print(data_file)
@@ -334,3 +336,5 @@ with tqdm(total=size, colour="red") as pbar:
 
 for t in t_bucket:
     t.join()
+
+print(f"elapse time= {time.time() - t0} s")
