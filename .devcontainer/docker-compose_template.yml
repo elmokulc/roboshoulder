@@ -1,0 +1,13 @@
+version: "3.9"
+services:
+  main_container:
+    build:
+      args:
+        - USERNAME=$USERNAME
+        - USER_UID=$UID
+        - USER_GID=$GID
+        - CONDA_ENV_NAME=$CONDA_ENV_NAME
+      context: .
+      dockerfile: $DOCKERFILE
+    image: $IMAGE_NAME
+    stdin_open: true
