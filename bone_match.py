@@ -367,5 +367,5 @@ for i, data_file in enumerate(sorted(os.listdir(composite_data_dir))):
         data_bucket[f"{ID}_{side}_{bone}"] = json.load(f, object_hook=deconvert)
 
 json_string = ",\n".join(json.dumps(data_bucket, indent=4, default=convert).split(", "))
-with open("./data.json", "w") as f:
+with open("./data_proceed_full.json", "w") as f:
     f.write(json_string)
