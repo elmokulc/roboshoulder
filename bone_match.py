@@ -13,79 +13,6 @@ from functools import wraps
 import time
 import json
 
-table_composite = {
-    "humerus": {
-        "0": "humerus_3220G",
-        "1": "humerus_3220D",
-        "2": "humerus_0820D",
-        "3": "humerus_2320D",
-        "4": "humerus_2320G",
-        "5": "humerus_2920G",
-        "6": "humerus_2920D",
-        "7": "humerus_0820G",
-        "8": "humerus_2620D",
-        "9": "humerus_2620G",
-    },
-    "collarbone": {
-        "0": "collarbone_2920G",
-        "1": "collarbone_2920D ",
-        "2": "collarbone_2620D",
-        "3": "collarbone_2620G",
-        "4": "collarbone_0820G",
-        "5": "collarbone_0820D",
-        "6": "collarbone_2320G",
-        "7": "collarbone_2320D",
-        "8": "collarbone_3220G",
-        "9": "collarbone_3220D",
-    },
-    "scapula": {
-        "0": "scapula_2920D",
-        "1": "scapula_2320D",
-        "2": "scapula_0820D",
-        "3": "scapula_3220D",
-        "4": "scapula_2620D",
-        "5": "scapula_0820G",
-        "6": "scapula_2620G",
-        "7": "scapula_2920G",
-        "8": "scapula_2320G",
-        "9": "scapula_3220G",
-    },
-}
-
-table_stl = {
-    "RS001": "3220",
-    "RS002": "2320",
-    "RS003": "2920",
-    "RS004": "0820",
-    "RS005": "2620",
-}
-
-
-landmark_dir = "./Landmarks/"
-composite_data_dir = "./data_composites/"
-stl_dir = "./STL/"
-raw_data_dir = "./data_raw/"
-
-
-for raw_file in os.listdir(raw_data_dir):
-    _, bonetype, ID_side = tuple(raw_file[:-4].split("_"))
-    # print(bonetype, ID_side)
-    ID = ID_side[:-1]
-    side = ID_side[-1]
-
-    if side == "G":
-        side = "L"
-    elif side == "D":
-        side = "R"
-    if bonetype == "collarbone":
-        bonetype = "clavicle"
-
-    ID = [key for key, value in table_stl.items() if ID == value][0]
-
-    filename = f"{ID}_{side}_{bonetype.capitalize()}_composite.csv"
-
-    shutil.copy(raw_data_dir + raw_file, composite_data_dir + filename)
-
 def convert(x):
     if hasattr(x, "tolist"):  # numpy arrays have this
         return {"$array": x.tolist()}  # Make a tagged object
@@ -324,6 +251,78 @@ def computation(data_file, Finished, index, size):
     with open(f"{checkdir('./data_processed/')}/{ID}_{side}_{bone}_data.json", "w") as f:
         f.write(json_string)
 
+
+table_composite = {
+    "humerus": {
+        "0": "humerus_3220G",
+        "1": "humerus_3220D",
+        "2": "humerus_0820D",
+        "3": "humerus_2320D",
+        "4": "humerus_2320G",
+        "5": "humerus_2920G",
+        "6": "humerus_2920D",
+        "7": "humerus_0820G",
+        "8": "humerus_2620D",
+        "9": "humerus_2620G",
+    },
+    "collarbone": {
+        "0": "collarbone_2920G",
+        "1": "collarbone_2920D ",
+        "2": "collarbone_2620D",
+        "3": "collarbone_2620G",
+        "4": "collarbone_0820G",
+        "5": "collarbone_0820D",
+        "6": "collarbone_2320G",
+        "7": "collarbone_2320D",
+        "8": "collarbone_3220G",
+        "9": "collarbone_3220D",
+    },
+    "scapula": {
+        "0": "scapula_2920D",
+        "1": "scapula_2320D",
+        "2": "scapula_0820D",
+        "3": "scapula_3220D",
+        "4": "scapula_2620D",
+        "5": "scapula_0820G",
+        "6": "scapula_2620G",
+        "7": "scapula_2920G",
+        "8": "scapula_2320G",
+        "9": "scapula_3220G",
+    },
+}
+
+table_stl = {
+    "RS001": "3220",
+    "RS002": "2320",
+    "RS003": "2920",
+    "RS004": "0820",
+    "RS005": "2620",
+}
+
+
+landmark_dir = "./Landmarks/"
+composite_data_dir = "./data_composites/"
+stl_dir = "./STL/"
+raw_data_dir = "./data_raw/"
+
+for raw_file in os.listdir(raw_data_dir):
+    _, bonetype, ID_side = tuple(raw_file[:-4].split("_"))
+    # print(bonetype, ID_side)
+    ID = ID_side[:-1]
+    side = ID_side[-1]
+
+    if side == "G":
+        side = "L"
+    elif side == "D":
+        side = "R"
+    if bonetype == "collarbone":
+        bonetype = "clavicle"
+
+    ID = [key for key, value in table_stl.items() if ID == value][0]
+
+    filename = f"{ID}_{side}_{bonetype.capitalize()}_composite.csv"
+
+    shutil.copy(raw_data_dir + raw_file, composite_data_dir + filename)
 
 
 t_bucket = []

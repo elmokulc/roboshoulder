@@ -3,7 +3,7 @@
 {
 	//"initializeCommand": "cd $(pwd)/.devcontainer && make update-env-vars",
 	"initializeCommand": "cd $(pwd)/.devcontainer && python3 preprocess.py",
-	"name": "Miniconda_pylatex_container",
+	"name": "roboshoulder_container",
 	"dockerComposeFile": "docker-compose.yml",
 	"service": "main_container",
 	"workspaceFolder": "/workspace",
