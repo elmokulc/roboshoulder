@@ -239,7 +239,11 @@ def get_full_transform(X0, points_scan_compo, bone_mesh):
 
 @thrd
 def computation(data_file, Finished, index, size):
-    data_local = {"RT_compo2stl_init": {}, "RT_compo2stl_full": {}}
+    data_local = {"RT_compo2stl_init": {},
+                  "RT_compo2stl_full":{},
+                  "data_stl":{},
+                  "data_compo":{},
+                  } 
 
     ID, side, bone, datatype = tuple(data_file[:-4].split("_"))
     land_file = f"{ID}_{side}_{bone}_Landmarks.fcsv"
@@ -258,14 +262,14 @@ def computation(data_file, Finished, index, size):
 
         if key in data_composite_points:
             point_ref_compo = data_composite_points[key].values.astype(np.float64)
-            point_ref_compo = point_ref_compo[~np.isnan(point_ref_compo)].reshape(-1, 3)
+            point_ref_compo = point_ref_compo[~np.isnan(point_ref_compo)].reshape(-1, 3)                        
             points_compo["ref_point"][key] = point_ref_compo.astype(np.float64)
+            
+            points_stl["ref_point"][key] = np.array([df.x.values, df.y.values, df.z.values]).astype(np.float64)                
+            
+            data_local["data_stl"].update({key:points_stl["ref_point"][key]})
+            data_local["data_compo"].update({key:points_compo["ref_point"][key]})
 
-            points_stl["ref_point"][key] = np.array(
-                [df.x.values, df.y.values, df.z.values]
-            ).astype(np.float64)
-            data_local["data_stl"] = points_stl["ref_point"][key]
-            data_local["data_compo"] = points_stl["ref_point"][key]
     try:
         sol = get_initial_tranform(
             tri_ref_points_compo=points_compo["ref_point"],
@@ -315,7 +319,7 @@ def computation(data_file, Finished, index, size):
 
     Finished[index + int(size / 2)] = True
     data_local
-    json_string = ",\n".join(json.dumps(data_bucket, indent=4, default=convert).split(", "))
+    json_string = json.dumps(data_local, indent=4, default=convert)
     
     with open(f"{checkdir('./data_processed/')}/{ID}_{side}_{bone}_data.json", "w") as f:
         f.write(json_string)
@@ -359,7 +363,7 @@ data_bucket = {}
 for i, data_file in enumerate(sorted(os.listdir(composite_data_dir))):
     ID, side, bone, datatype = tuple(data_file[:-4].split("_"))   
     data_bucket.update({f"{ID}_{side}_{bone}":{}}) 
-    with open(f"{checkdir('./data_processed/')}/{ID}_{side}_{bone}_data.json") as f:
+    with open(f"{checkdir('./data_processed/')}/{ID}_{side}_{bone}_data.json", "r") as f:
         data_bucket[f"{ID}_{side}_{bone}"] = json.load(f, object_hook=deconvert)
 
 json_string = ",\n".join(json.dumps(data_bucket, indent=4, default=convert).split(", "))
