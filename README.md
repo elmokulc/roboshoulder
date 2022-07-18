@@ -2,7 +2,7 @@
 
 ## Description
 
-This repository the data source related to the RoboShouder project : 
+This repository contains the data source related to the RoboShouder project : 
 
 - [x] STL files of specimens
 - [x] Landmarks positions for all specimens
