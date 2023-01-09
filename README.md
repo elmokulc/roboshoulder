@@ -1,6 +1,6 @@
 # RoboShouder
 
-## Data points
+## Data points
 
 - data_raw : Recorded points expressed in camera reference frame 
 - data_composites : Recorded points expressed in scapula-composite reference frame 
